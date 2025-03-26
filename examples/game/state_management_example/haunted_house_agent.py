@@ -23,6 +23,33 @@ def log_state_change(title: str, state: dict):
     print("═" * 60 + "\n")
 
 
+def log_action_info(action: str, info: dict):
+    print("\n" + "-" * 60)
+    print(f"🔧 {action.upper()} WORKER UPDATE".center(60))
+    print("-" * 60)
+    print("📤 Action Info:")
+    print(json.dumps(info, indent=4))
+
+
+# ---- Shared Worker State Update ----
+def update_worker_state(worker_id: str, function_result: FunctionResult, current_state: dict, updates: dict):
+    if function_result is not None:
+        info = function_result.info
+        log_action_info(worker_id, info)
+
+        if function_result.action_status == FunctionResultStatus.DONE:
+            worker_state = current_state["worker_states"][worker_id]
+
+            for key, change in updates.items():
+                if key in worker_state:
+                    worker_state[key] = max(0, worker_state[key] + change)
+
+            log_state_change(f"Updated Worker State ({worker_id})", worker_state)
+
+    return current_state
+
+
+# ---- Initial State ----
 init_state = {
     "agent_state": {
         "scare_score": 0,
@@ -42,89 +69,54 @@ init_state = {
     }
 }
 
-# ----- Worker State Management -----
-def get_ghost_performer_worker_state_fn(function_result: FunctionResult, current_state: dict) -> dict:
-    print(f"Using get ghost performer worker state -> current state: {current_state}")
 
+# ----- Worker State Functions -----
+def get_ghost_performer_worker_state_fn(function_result: FunctionResult, current_state: dict) -> dict:
     if current_state is None:
         print("[WORKER STATE INIT] Initialized new worker state.")
         return init_state
 
-    if function_result is not None:
-        info = function_result.info
-        print("\n" + "-" * 60)
-        print(f"🔧 GHOST PERFORMER WORKER UPDATE ({info.get('action', '').upper()})".center(60))
-        print("-" * 60)
-        print("📤 Action Info:")
-        print(json.dumps(info, indent=4))
+    if function_result and function_result.info.get("action") == "move_ghost":
+        location = function_result.info.get("location", "unknown")
+        current_state["worker_states"][GHOST_PERFORMER_WORKER_ID]["ghost_placement"] = location
 
-        action = info.get("action", None)
+    return update_worker_state(
+        GHOST_PERFORMER_WORKER_ID,
+        function_result,
+        current_state,
+        updates={"prop_battery": -10}
+    )
 
-        if action and function_result.action_status == FunctionResultStatus.DONE and current_state.get("worker_states", {}).get(GHOST_PERFORMER_WORKER_ID, {}).get("prop_battery", 0) > 0:
-            current_state["worker_states"][GHOST_PERFORMER_WORKER_ID]["prop_battery"] -= 10
-            print(f"   🔋 prop_battery decreased to {current_state["worker_states"][GHOST_PERFORMER_WORKER_ID]["prop_battery"]}")
-
-            if action == "move_ghost":
-                location = info.get("location", "unknown")
-                current_state["worker_states"][GHOST_PERFORMER_WORKER_ID]["ghost_placement"] = location
-                print(f"   👻 ghost_placement updated to {location}")
-
-
-    log_state_change("Updated Worker State", current_state["worker_states"][GHOST_PERFORMER_WORKER_ID])
-    return current_state
 
 def get_sound_fx_operator_worker_state_fn(function_result: FunctionResult, current_state: dict) -> dict:
-    print(f"Using get sound fx operator worker state -> current state: {current_state}")
-
     if current_state is None:
         print("[WORKER STATE INIT] Initialized new worker state.")
         return init_state
 
-    if function_result is not None:
-        info = function_result.info
-        print("\n" + "-" * 60)
-        print(f"🔧 SOUND FX OPERATOR WORKER UPDATE ({info.get('action', '').upper()})".center(60))
-        print("-" * 60)
-        print("📤 Action Info:")
-        print(json.dumps(info, indent=4))
-    
-    action = info.get("action", None)
-
-    if action and function_result.action_status == FunctionResultStatus.DONE and current_state.get("worker_states", {}).get(SOUND_FX_OPERATOR_WORKER_ID, {}).get("speaker_battery", 0) > 0:
-        current_state["worker_states"][SOUND_FX_OPERATOR_WORKER_ID]["speaker_battery"] -= 10
-        print(f"   🔋 speaker_battery decreased to {current_state["worker_states"][SOUND_FX_OPERATOR_WORKER_ID]["speaker_battery"]}")
-
-    log_state_change("Updated Worker State", current_state["worker_states"][SOUND_FX_OPERATOR_WORKER_ID])
-    return current_state
+    return update_worker_state(
+        SOUND_FX_OPERATOR_WORKER_ID,
+        function_result,
+        current_state,
+        updates={"speaker_battery": -10}
+    )
 
 
 def get_fog_machine_tech_worker_state_fn(function_result: FunctionResult, current_state: dict) -> dict:
-    print(f"Using get sound fx operator worker state -> current state: {current_state}")
-
     if current_state is None:
         print("[WORKER STATE INIT] Initialized new worker state.")
         return init_state
 
-    if function_result is not None:
-        info = function_result.info
-        print("\n" + "-" * 60)
-        print(f"😶‍🌫️ FOG MACHINE TECH WORKER UPDATE ({info.get('action', '').upper()})".center(60))
-        print("-" * 60)
-        print("📤 Action Info:")
-        print(json.dumps(info, indent=4))
-        
-    action = info.get("action", None)
+    return update_worker_state(
+        FOG_MACHINE_TECH_WORKER_ID,
+        function_result,
+        current_state,
+        updates={"fog_fluid_level": -10}
+    )
 
-    if action and function_result.action_status == FunctionResultStatus.DONE and current_state.get("worker_states", {}).get(FOG_MACHINE_TECH_WORKER_ID, {}).get("fog_fluid_level", 0) > 0:
-        current_state["worker_states"][FOG_MACHINE_TECH_WORKER_ID]["fog_fluid_level"] -= 10
-        print(f"   💧 fog_fluid_level decreased to {current_state["worker_states"][FOG_MACHINE_TECH_WORKER_ID]["fog_fluid_level"]}")
-
-    log_state_change("Updated Worker State", current_state["worker_states"][FOG_MACHINE_TECH_WORKER_ID])
-    return current_state
 
 # ----- Agent State Management -----
 def get_agent_state_fn(function_result: FunctionResult, current_state: dict) -> dict:
-    print(f"Using get agent state -> current state: {current_state}")
+    print(f"\n\n 🎃🎃🎃 Using get agent state → current state: {current_state}🎃🎃🎃")
 
     if current_state is None:
         print("[AGENT STATE INIT] Initialized new agent state...")
@@ -143,24 +135,38 @@ def get_agent_state_fn(function_result: FunctionResult, current_state: dict) -> 
             stress_pts = info.get("stress_points", 0)
             current_state["agent_state"]["scare_score"] += scare_pts
             current_state["agent_state"]["guest_stress_level"] += stress_pts
-            print(f"   🎯 scare_score +{scare_pts} → {current_state["agent_state"]["scare_score"]}")
-            print(f"   😱 guest_stress_level +{stress_pts} → {current_state["agent_state"]["guest_stress_level"]}")
+            print(f"\n   🎯 scare_score +{scare_pts} → {current_state['agent_state']['scare_score']}")
+            print(f"   😱 guest_stress_level +{stress_pts} → {current_state['agent_state']['guest_stress_level']}\n")
 
     log_state_change("Updated Agent State", current_state["agent_state"])
     return current_state
 
+
 # ----- Worker Functions -----
 def move_ghost(location: str, **kwargs) -> Tuple[FunctionResultStatus, str, dict]:
-    print(f"\n[move_ghost] ➡️ Moving ghost to {location}")
-    return FunctionResultStatus.DONE, f"Ghost moved to {location}!", {"action": "move_ghost", "location": location}
+    print(f"\n\n🎃 [move_ghost] ➡️ Moving ghost to '{location}' 🎃\n")
+    return FunctionResultStatus.DONE, f"Ghost moved to {location}!", {
+        "action": "move_ghost",
+        "location": location
+    }
+
 
 def trigger_sound_fx(effect: str, **kwargs) -> Tuple[FunctionResultStatus, str, dict]:
-    print(f"\n[trigger_sound_fx] 🔊 Triggering sound effect: {effect}")
-    return FunctionResultStatus.DONE, f"Sound effect '{effect}' triggered!", {"action": "scare_guest", "scare_points": 3, "stress_points": 2}
+    print(f"\n\n🔊 [trigger_sound_fx] Triggering sound effect: '{effect}' 🔊\n")
+    return FunctionResultStatus.DONE, f"Sound effect '{effect}' triggered!", {
+        "action": "scare_guest",
+        "scare_points": 3,
+        "stress_points": 2,
+        "effect": effect
+    }
+
 
 def trigger_fog_machine(**kwargs) -> Tuple[FunctionResultStatus, str, dict]:
-    print(f"\n[trigger_fog_machine] 🌫️ Activating fog machine.")
-    return FunctionResultStatus.DONE, "Fog machine activated!", {"action": "trigger_prop"}
+    print(f"\n\n🌫️ [trigger_fog_machine] Activating fog machine 🌫️\n")
+    return FunctionResultStatus.DONE, "Fog machine activated!", {
+        "action": "fog_fluid_level" 
+    }
+
 
 # ----- Function Declarations -----
 move_ghost_fn = Function(
@@ -184,6 +190,7 @@ trigger_fog_fn = Function(
     executable=trigger_fog_machine
 )
 
+
 # ----- Workers -----
 ghost_performer = WorkerConfig(
     id=GHOST_PERFORMER_WORKER_ID,
@@ -206,16 +213,18 @@ fog_machine_tech = WorkerConfig(
     action_space=[trigger_fog_fn]
 )
 
+
 # ----- Haunted House Agent -----
 haunted_agent = Agent(
     api_key=game_api_key,
     name="Haunted House Manager",
     agent_goal="Maximize guest screams and stress by strategically coordinating different haunted house props in each round. Ensure a balanced use of ghost performer, sound effects, and fog machine to create a layered and immersive scare experience.",
-    agent_description="You are the mastermind behind a haunted house attraction. Time every scare perfectly.",
+    agent_description="You are the mastermind behind a haunted house attraction. In every round, orchestrate a perfectly timed scare using a mix of ghost, sound, and fog. Don't repeat the same prop twice in a row.",
     get_agent_state_fn=get_agent_state_fn,
     workers=[ghost_performer, sound_fx_operator, fog_machine_tech],
     model_name="Llama-3.1-405B-Instruct"
 )
+
 
 # ----- Compile and Run -----
 print("\n🎬 Launching Haunted House Simulation...\n")
