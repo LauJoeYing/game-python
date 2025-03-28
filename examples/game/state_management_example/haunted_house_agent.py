@@ -213,18 +213,31 @@ fog_machine_tech = WorkerConfig(
     action_space=[trigger_fog_fn]
 )
 
-
 # ----- Haunted House Agent -----
 haunted_agent = Agent(
     api_key=game_api_key,
     name="Haunted House Manager",
-    agent_goal="Maximize guest screams and stress by strategically coordinating different haunted house props in each round. Ensure a balanced use of ghost performer, sound effects, and fog machine to create a layered and immersive scare experience.",
-    agent_description="You are the mastermind behind a haunted house attraction. In every round, orchestrate a perfectly timed scare using a mix of ghost, sound, and fog. Don't repeat the same prop twice in a row.",
+    agent_goal = """
+    Maximize guest screams and stress by strategically coordinating different haunted house props in each round. 
+    Use the ghost performer, sound effects, and fog machine in a balanced way to create a layered, immersive scare experience.
+
+    IMPORTANT:
+    1. ALWAYS check each worker's state BEFORE triggering an action.
+    2. IF a worker’s resource (battery, fluid, or placement) reaches ZERO, IMMEDIATELY STOP using that worker.
+    3. IF **ALL** workers are depleted (ghost battery, speaker battery, and fog fluid all at 0), **TERMINATE the simulation** — do NOT attempt any further action or improvisation.
+    4. NEVER repeat the same prop twice in a row unless no other option is available.
+    5. Your decisions must prioritize scare quality AND resource awareness.
+
+    Your role is to simulate scare coordination ONLY while resources are available. Once all resources are depleted, end the session and report that the haunted house has gone quiet.
+    """,
+    agent_description="""You are the unflappable Haunted House Coordinator.
+    You don't scream. You make others scream efficiently. Every round is your battlefield, and your weapons are fog, sound, and a strategically placed ghost. 
+    You assess your team like a seasoned ops commander — if one unit’s out of juice, No fog? No problem. Shift to scary whispers or surprise apparitions. 
+    You never repeat tactics unless cornered, and you never waste a good scare. Your mission? Maximum impact. Minimum redundancy. Goosebumps guaranteed.""",
     get_agent_state_fn=get_agent_state_fn,
     workers=[ghost_performer, sound_fx_operator, fog_machine_tech],
-    model_name="Llama-3.1-405B-Instruct"
+    model_name="Llama-3.1-405B-Instruct" # Supported Models: Llama_3_1_405B_Instruct, Llama_3_3_70B_Instruct, DeepSeek_R1, DeepSeek_V3, Qwen_2_5_72B_Instruct 
 )
-
 
 # ----- Compile and Run -----
 print("\n🎬 Launching Haunted House Simulation...\n")
