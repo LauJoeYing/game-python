@@ -101,8 +101,9 @@ This ensures:
 ![Ghost Worker Move Log](./screenshots/moved_ghost_log.png)
 This shows the updated state of the ghost_performer worker after the action was applied:
 
-- 🔋 prop_battery dropped to 50: The ghost worker consumed energy to move.
 - 👻 ghost_placement updated to "foggy corridor entrance": The ghost is now at that new location.
+- 🔋 prop_battery dropped to 50: The ghost worker consumed energy to move.
+
 
 ![Ghost Worker Move Log](./screenshots/agent_move_ghost.png)
 - This log reflects how the agent updates its state in response to the move_ghost action initiated by the ghost_performer worker.
@@ -160,16 +161,11 @@ It's a shared utility function that:
 - Returns the updated global state
 - It centralizes mutation logic, ensuring consistent handling across all workers.
 
-### ❓ Q4: Can the same action be run multiple times in a row?
-
-Not by default. The agent is instructed with a specific goal in its agent_description: “Don't repeat the same prop twice in a row.” This encourages diverse scare patterns and ensures each prop contributes strategically to the experience.
-
-
-### ❓ Q5: How does the agent learn about the results of an action?
+### ❓ Q4: How does the agent learn about the results of an action?
 
 The agent uses `get_agent_state_fn()`, which reads the `FunctionResult.info` field (e.g., scare_points, stress_points). Based on these, it updates `scare_score` and `guest_stress_level`. This feedback loop allows the agent to adapt its strategy dynamically.
 
-### ❓ Q6: What is the purpose of Function, Argument, and WorkerConfig?
+### ❓ Q5: What is the purpose of Function, Argument, and WorkerConfig?
 
 These are part of the game_sdk abstraction:
 
@@ -181,9 +177,6 @@ These are part of the game_sdk abstraction:
 
 They collectively define the simulation logic.
 
-### ❓ Q7: What happens if a worker state runs out (e.g., fog fluid = 0)?
-
-While the current implementation doesn't block the action, it logs the updated state and ensures the value doesn't drop below zero. In a full system, you could easily add logic to skip or penalize actions when resources are depleted.
 
 
 
