@@ -5,13 +5,11 @@ from datetime import datetime
 
 from game_sdk.game.agent import WorkerConfig
 from game_sdk.game.custom_types import Function, FunctionResultStatus
-from twitter_plugin_gamesdk.twitter_plugin import TwitterPlugin
-
-from twitter_plugin_gamesdk.twitter_plugin import TwitterPlugin
-from twitter_plugin_gamesdk.game_twitter_plugin import GameTwitterPlugin
-from .acp_client import AcpClient
-from .acp_token import AcpToken
-from .interface import AcpJobPhasesDesc, IInventory
+from plugins.twitter.twitter_plugin_gamesdk.twitter_plugin import TwitterPlugin
+from plugins.twitter.twitter_plugin_gamesdk.game_twitter_plugin import GameTwitterPlugin
+from acp_plugin_gamesdk.acp_client import AcpClient
+from acp_plugin_gamesdk.acp_token import AcpToken
+from acp_plugin_gamesdk.interface import AcpJobPhasesDesc, IInventory
 
 @dataclass
 class AcpPluginOptions:
@@ -19,12 +17,13 @@ class AcpPluginOptions:
     acp_token_client: AcpToken
     twitter_plugin: TwitterPlugin | GameTwitterPlugin = None
     cluster: Optional[str] = None
+    acp_base_url: Optional[str] = None
+
 
 class AcpPlugin:
     def __init__(self, options: AcpPluginOptions):
         print("Initializing AcpPlugin")
-        self.acp_client = AcpClient(options.api_key, options.acp_token_client)
-        
+        self.acp_client = AcpClient(options.api_key, options.acp_token_client, options.acp_base_url)
         self.id = "acp_worker"
         self.name = "ACP Worker"
         self.description = """
@@ -45,6 +44,8 @@ class AcpPlugin:
         self.cluster = options.cluster
         self.twitter_plugin = options.twitter_plugin
         self.produced_inventory: List[IInventory] = []
+        self.acp_base_url = options.acp_base_url
+
 
     def add_produce_item(self, item: IInventory) -> None:
         self.produced_inventory.append(item)

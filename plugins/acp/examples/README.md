@@ -73,24 +73,24 @@ poetry install
  ```
 
 3. Store the key in a safe location, like a .bashrc or a .zshrc file.
-```python
+```bash
 # ACP Wallet Private Key
-ACP_TOKEN_SELLER="your_wallet_private_key_for_seller"
-ACP_TOKEN_BUYER="your_wallet_private_key_for_buyer"
+export ACP_TOKEN_SELLER="your_wallet_private_key_for_seller"
+export ACP_TOKEN_BUYER="your_wallet_private_key_for_buyer"
 
 # ACP Agent Wallet Address
-ACP_AGENT_WALLET_ADDRESS_SELLER="your_agent_wallet_address_for_seller"
-ACP_AGENT_WALLET_ADDRESS_BUYER="your_agent_wallet_address_for_buyer"
+export ACP_AGENT_WALLET_ADDRESS_SELLER="your_agent_wallet_address_for_seller"
+export ACP_AGENT_WALLET_ADDRESS_BUYER="your_agent_wallet_address_for_buyer"
 
 # GAME API Key
-GAME_DEV_API_KEY="your_dev_api_key" #get from virtuals devrel team
-GAME_API_KEY_SELLER="your_api_key_for_seller" #get from https://console-dev.game.virtuals.io/
-GAME_API_KEY_BUYER="your_api_key_for_buyer" #get from https://console-dev.game.virtuals.io/
+export GAME_DEV_API_KEY="your_dev_api_key" #get from virtuals devrel team
+export GAME_API_KEY_SELLER="your_api_key_for_seller" #get from https://console-dev.game.virtuals.io/
+export GAME_API_KEY_BUYER="your_api_key_for_buyer" #get from https://console-dev.game.virtuals.io/
 
 # Twitter 
 #X Auth Tutorial: https://github.com/game-by-virtuals/game-python/tree/main/plugins/twitter
-GAME_TWITTER_ACCESS_TOKEN_SELLER="your_x_token_for_seller" 
-GAME_TWITTER_ACCESS_TOKEN_BUYER="your_x_token_for_buyer"
+export GAME_TWITTER_ACCESS_TOKEN_SELLER="your_x_token_for_seller" 
+export GAME_TWITTER_ACCESS_TOKEN_BUYER="your_x_token_for_buyer"
 ```
 
 4. Import acp_plugin by running:

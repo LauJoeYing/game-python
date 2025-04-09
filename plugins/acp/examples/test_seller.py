@@ -42,8 +42,10 @@ def test():
             acp_token_client=AcpToken(
                 os.environ.get("ACP_TOKEN_SELLER"),
                 os.environ.get("ACP_AGENT_WALLET_ADDRESS_SELLER"),
-                "https://base-sepolia-rpc.publicnode.com/"  # Assuming this is the chain identifier
+                "https://base-sepolia-rpc.publicnode.com/",  # Assuming this is the chain identifier
+                "https://acpx-staging.virtuals.io/api"
             ),
+            acp_base_url="https://acpx-staging.virtuals.io/api",
             twitter_plugin=GameTwitterPlugin(options)
         )
     )

@@ -5,7 +5,7 @@ from eth_account import Account
 from eth_account.messages import encode_defunct
 import json
 
-AGENT_WALLET_ADDRESS = "0x895dab20e8C52cEa7D03F3cEef38536f8edB8e74"
+AGENT_WALLET_ADDRESS = "xxx"
 token = os.environ.get("ACP_TOKEN_BUYER")
 private_key_hex = token[2:]
 acp_token_client = AcpToken(
@@ -39,7 +39,7 @@ payload = {
 }
 
 # Submit to custom API
-api_url = "https://acpx.virtuals.gg/api/acp-agent-wallets/transactions"
+api_url = "https://acpx-staging.virtuals.io/api/acp-agent-wallets/transactions"
 response = requests.post(api_url, json=payload)
 print("✅ Payload sent!")
 print("Status:", response.status_code)

@@ -4,10 +4,7 @@ from typing import Optional, Tuple, TypedDict
 from datetime import datetime
 from web3 import Web3
 from eth_account import Account
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-from .acp_token_abi import ACP_TOKEN_ABI
+from acp_plugin_gamesdk.acp_token_abi import ACP_TOKEN_ABI
 import requests
 from eth_account.messages import encode_defunct
 import json
@@ -48,9 +45,9 @@ class AcpToken:
         wallet_private_key: str,
         agent_wallet_address: str,
         network_url: str,
+        acp_base_url: Optional[str] = None,
         contract_address: str = "0x2422c1c43451Eb69Ff49dfD39c4Dc8C5230fA1e6",
         virtuals_token_address: str = "0xbfAB80ccc15DF6fb7185f9498d6039317331846a",
-        base_url: str = "https://acpx.virtuals.gg/api"
     ):
         self.web3 = Web3(Web3.HTTPProvider(network_url))
         self.account = Account.from_key(wallet_private_key)
@@ -88,17 +85,16 @@ class AcpToken:
                 "type": "function"
             }]
         )
-        self.base_url = base_url
-
+        self.acp_base_url = acp_base_url if acp_base_url else "https://acpx-staging.virtuals.io/api"
     def get_agent_wallet_address(self) -> str:
         return self.agent_wallet_address
         
     def get_contract_address(self) -> str:
         return self.contract_address
 
-    def await_transaction(self, hash_value: str) -> object:
+    def validate_transaction(self, hash_value: str) -> object:
         try:
-            response = requests.post(f"{self.base_url}/acp-agent-wallets/trx-result", json={"userOpHash": hash_value})
+            response = requests.post(f"{self.acp_base_url}/acp-agent-wallets/trx-result", json={"userOpHash": hash_value})
             return response.json()
         except Exception as error:
             print(f"Error getting job_id: {error}")
@@ -128,7 +124,7 @@ class AcpToken:
             }
             
             # Submit to custom API
-            api_url = f"{self.base_url}/acp-agent-wallets/transactions"
+            api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
                 
             # Return transaction hash or response ID
@@ -152,7 +148,7 @@ class AcpToken:
                 "signature": signature
             }
             
-            api_url = f"{self.base_url}/acp-agent-wallets/transactions"
+            api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
             
             if (response.status_code != 200):
@@ -185,7 +181,7 @@ class AcpToken:
                     "signature": signature
                 }
 
-                api_url = f"{self.base_url}/acp-agent-wallets/transactions"
+                api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
                 response = requests.post(api_url, json=payload)
                 
                 if (response.status_code != 200):
@@ -240,13 +236,13 @@ class AcpToken:
                     "signature": signature
                 }
                 
-                api_url = f"{self.base_url}/acp-agent-wallets/transactions"
+                api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
                 response = requests.post(api_url, json=payload)
                 
                 if (response.status_code != 200):
                     raise Exception("Failed to sign memo")
                 
-                return response.json().get("txHash", response.json().get("id", ""))
+                return response.json()
                 
             except Exception as error:
                 print(f"Error signing memo: {error}")
@@ -268,7 +264,7 @@ class AcpToken:
                 "signature": signature
             }
             
-            api_url = f"{self.base_url}/acp-agent-wallets/transactions"
+            api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
             
             if (response.status_code != 200):
