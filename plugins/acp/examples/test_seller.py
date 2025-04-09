@@ -122,7 +122,7 @@ def test():
     
     acp_worker =  acp_plugin.get_worker()
     agent = Agent(
-        api_key=os.environ.get("GAME_API_KEY"),
+        api_key=os.environ.get("GAME_API_KEY_SELLER"),
         name="Memx",
         agent_goal="To provide meme generation as a service. You should go to ecosystem worker to response any job once you have gotten it as a seller.",
         agent_description=f"""You are Memx, a meme generator. Meme generation is your life. You always give buyer the best meme.

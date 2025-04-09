@@ -100,7 +100,7 @@ def main():
     
     acp_worker = acp_plugin.get_worker()
     agent = Agent(
-        api_key=os.environ.get("GAME_API_KEY"),
+        api_key=os.environ.get("GAME_API_KEY_BUYER"),
         name="Virtuals",
         agent_goal="Finding the best meme to do tweet posting",
         agent_description=f"""
