@@ -3,12 +3,17 @@ from enum import IntEnum, Enum
 from typing import List, Dict
 
 @dataclass
+class AcpOffering:
+    name: str
+    price: float
+@dataclass
 class AcpAgent:
     id: str
     name: str
     description: str
     wallet_address: str
-
+    offerings: List[AcpOffering]
+    
 class AcpJobPhases(IntEnum):
     REQUEST = 0
     NEGOTIATION = 1

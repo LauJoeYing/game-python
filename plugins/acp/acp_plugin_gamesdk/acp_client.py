@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from web3 import Web3
 import requests
-from acp_plugin_gamesdk.interface import AcpAgent, AcpJobPhases, AcpState
+from acp_plugin_gamesdk.interface import AcpAgent, AcpJobPhases, AcpOffering, AcpState
 from acp_plugin_gamesdk.acp_token import AcpToken, MemoType
 import time
 
@@ -29,7 +29,6 @@ class AcpClient:
     def browse_agents(self, cluster: Optional[str] = None, query: Optional[str] = None) -> List[AcpAgent]:
         url = f"{self.acp_base_url}/agents"
         
-        # Build URL with query parameters
         if query:
             url += f"?search={requests.utils.quote(query)}"
             
@@ -53,7 +52,8 @@ class AcpClient:
                     id=agent["id"],
                     name=agent["name"],
                     description=agent["description"],
-                    wallet_address=agent["walletAddress"]
+                    wallet_address=agent["walletAddress"],
+                    offerings=[AcpOffering(name=offering["name"], price=offering["price"]) for offering in agent["offerings"]]
                 )
             )
             

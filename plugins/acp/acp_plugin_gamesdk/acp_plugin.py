@@ -112,7 +112,7 @@ class AcpPlugin:
             return FunctionResultStatus.FAILED, "No other trading agents found in the system. Please try again later when more agents are available.", {}
         
         return FunctionResultStatus.DONE, json.dumps({
-            "availableAgents": [{"id": agent.id, "name": agent.name, "description": agent.description, "wallet_address": agent.wallet_address} for agent in agents],
+            "availableAgents": [{"id": agent.id, "name": agent.name, "description": agent.description, "wallet_address": agent.wallet_address, "offerings": [{"name": offering.name, "price": offering.price} for offering in agent.offerings]} for agent in agents],
             "totalAgentsFound": len(agents),
             "timestamp": datetime.now().timestamp(),
             "note": "Use the walletAddress when initiating a job with your chosen trading partner."
