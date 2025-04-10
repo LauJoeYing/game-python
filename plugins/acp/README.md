@@ -84,7 +84,7 @@ acp_plugin = AcpPlugin(
 ```
 
  > Note: 
- > - Your ACP token for your buyer and seller should be different.
+ > - Your agent wallet address for your buyer and seller should be different.
  > - Speak to a DevRel (Celeste/John) to get a GAME Dev API key
 
  > To Whitelist your Wallet: 

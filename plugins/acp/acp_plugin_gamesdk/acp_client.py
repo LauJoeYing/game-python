@@ -49,24 +49,24 @@ class AcpClient:
         
         for agent in response_json.get("data", []):
             result.append(
-                {
-                "id": agent["id"],
-                "name": agent["name"],
-                "description": agent["description"],
-                "walletAddress": agent["walletAddress"]
-                }
+                AcpAgent(
+                    id=agent["id"],
+                    name=agent["name"],
+                    description=agent["description"],
+                    wallet_address=agent["walletAddress"]
+                )
             )
             
         return result
 
     def create_job(self, provider_address: str, price: float, job_description: str) -> int:
         expire_at = datetime.now() + timedelta(days=1)
-        
         tx_result =  self.acp_token.create_job(
             provider_address=provider_address,
             evaluator_address=provider_address,
             expire_at=expire_at
         )
+        
         job_id = None
         retry_count = 3
         retry_delay = 3
@@ -133,7 +133,6 @@ class AcpClient:
     def response_job(self, job_id: int, accept: bool, memo_id: int, reasoning: str):
         if accept:
             self.acp_token.sign_memo(memo_id, accept, reasoning)
-            
             time.sleep(5)
             
             return self.acp_token.create_memo(
@@ -162,7 +161,7 @@ class AcpClient:
         time.sleep(5)
         return self.acp_token.sign_memo(memo_id, True, reason)
 
-    def deliver_job(self, job_id: int, deliverable: str, memo_id: int, reason: str):
+    def deliver_job(self, job_id: int, deliverable: str):
         return self.acp_token.create_memo(
             job_id=int(job_id),
             content=deliverable,
@@ -172,17 +171,6 @@ class AcpClient:
         )
 
     def add_tweet(self, job_id: int, tweet_id: str, content: str):
-        """
-        Add a tweet to a job.
-        
-        Args:
-            job_id: The ID of the job
-            tweet_id: The ID of the tweet
-            content: The content of the tweet
-        
-        Raises:
-            Exception: If the request fails
-        """
         payload = {
             "tweetId": tweet_id,
             "content": content

@@ -4,7 +4,7 @@ from twitter_plugin_gamesdk.game_twitter_plugin import GameTwitterPlugin
 from twitter_plugin_gamesdk.twitter_plugin import TwitterPlugin
 from acp_plugin_gamesdk.acp_plugin import AcpPlugin, AcpPluginOptions
 from acp_plugin_gamesdk.acp_token import AcpToken
-from game_sdk.game.custom_types import Function, FunctionResult, FunctionResultStatus
+from game_sdk.game.custom_types import Argument, Function, FunctionResult, FunctionResultStatus
 from game_sdk.game.agent import Agent, WorkerConfig
 
 def ask_question(query: str) -> str:
@@ -100,21 +100,21 @@ def test():
                 fn_name="generate_meme",
                 fn_description="A function to generate meme",
                 args=[
-                    {
-                        "name": "description",
-                        "type": "str",
-                        "description": "A description of the meme generated"
-                    },
-                    {
-                        "name": "jobId",
-                        "type": "str",
-                        "description": "Job that your are responding to."
-                    },
-                    {
-                        "name": "reasoning",
-                        "type": "str",
-                        "description": "The reasoning of the tweet"
-                    }
+                    Argument(
+                        name="description",
+                        type="str",
+                        description="A description of the meme generated"
+                    ),
+                    Argument(
+                        name="jobId",
+                        type="str",
+                        description="Job that your are responding to."
+                    ),
+                    Argument(
+                        name="reasoning",
+                        type="str",
+                        description="The reasoning of the tweet"
+                    )
                 ],
                 executable=generate_meme
             )

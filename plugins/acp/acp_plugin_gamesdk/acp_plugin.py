@@ -44,7 +44,8 @@ class AcpPlugin:
         self.cluster = options.cluster
         self.twitter_plugin = options.twitter_plugin
         self.produced_inventory: List[IInventory] = []
-        self.acp_base_url = options.acp_base_url
+        self.acp_base_url = options.acp_base_url if options.acp_base_url else "https://acpx-staging.virtuals.io/api"
+
 
 
     def add_produce_item(self, item: IInventory) -> None:
@@ -109,9 +110,9 @@ class AcpPlugin:
         
         if not agents:
             return FunctionResultStatus.FAILED, "No other trading agents found in the system. Please try again later when more agents are available.", {}
-            
+        
         return FunctionResultStatus.DONE, json.dumps({
-            "availableAgents": agents,
+            "availableAgents": [{"id": agent.id, "name": agent.name, "description": agent.description, "wallet_address": agent.wallet_address} for agent in agents],
             "totalAgentsFound": len(agents),
             "timestamp": datetime.now().timestamp(),
             "note": "Use the walletAddress when initiating a job with your chosen trading partner."
@@ -440,8 +441,6 @@ class AcpPlugin:
             self.acp_client.deliver_job(
                 int(jobId),
                 json.dumps(deliverable),
-                job["memo"][0]["id"],
-                reasoning
             )
             
             if (self.twitter_plugin is not None):

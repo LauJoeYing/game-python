@@ -1,7 +1,7 @@
 from typing import Any,Tuple
 import os
 from game_sdk.game.agent import Agent, WorkerConfig
-from game_sdk.game.custom_types import Function, FunctionResultStatus
+from game_sdk.game.custom_types import Argument, Function, FunctionResultStatus
 from acp_plugin_gamesdk.acp_plugin import AcpPlugin, AcpPluginOptions
 from acp_plugin_gamesdk.acp_token import AcpToken
 from twitter_plugin_gamesdk.game_twitter_plugin import GameTwitterPlugin
@@ -83,16 +83,16 @@ def main():
                 fn_name="post_tweet",
                 fn_description="This function is to post tweet",
                 args=[
-                    {
-                        "name": "content",
-                        "type": "string",
-                        "description": "The content of the tweet"
-                    },
-                    {
-                        "name": "reasoning",
-                        "type": "string",
-                        "description": "The reasoning of the tweet"
-                    }
+                    Argument(
+                        name="content",
+                        type="string",
+                        description="The content of the tweet"
+                    ),
+                    Argument(
+                        name="reasoning",
+                        type="string",
+                        description="The reasoning of the tweet"
+                    )
                 ],
                 executable=post_tweet
             )

@@ -97,8 +97,7 @@ class AcpToken:
             response = requests.post(f"{self.acp_base_url}/acp-agent-wallets/trx-result", json={"userOpHash": hash_value})
             return response.json()
         except Exception as error:
-            print(f"Error getting job_id: {error}")
-            raise Exception("Failed to get job_id")
+            raise Exception(f"Failed to get job_id {error}")
 
     def create_job(
         self,
@@ -126,13 +125,16 @@ class AcpToken:
             # Submit to custom API
             api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
-                
+            
+            
+            if response.json().get("error"):
+                raise Exception(f"Failed to create job {response.json().get('error').get('status')}, Message: {response.json().get('error').get('message')}")
+            
             # Return transaction hash or response ID
-            return { "txHash": response.json().get("data", {}).get("userOpHash", "")}
+            return {"txHash": response.json().get("data", {}).get("userOpHash", "")}
         
         except Exception as error:
-            print(f"Error creating job: {error}")
-            raise Exception("Failed to create job")
+            raise Exception(f"{error}")
 
     def approve_allowance(self, price_in_wei: int) -> str:
         try:
@@ -151,13 +153,12 @@ class AcpToken:
             api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
             
-            if (response.status_code != 200):
-                raise Exception("Failed to approve allowance")
+            if (response.json().get("error")):
+                raise Exception(f"Failed to approve allowance {response.json().get('error').get('status')}, Message: {response.json().get('error').get('message')}")
             
             return response.json()
         except Exception as error:
-            print(f"Error approving allowance: {error}")
-            raise Exception("Failed to approve allowance")
+            raise Exception(f"{error}")
 
     def create_memo(
         self,
@@ -184,16 +185,16 @@ class AcpToken:
                 api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
                 response = requests.post(api_url, json=payload)
                 
-                if (response.status_code != 200):
-                    raise Exception("Failed to create memo")
+                if (response.json().get("error")):
+                    raise Exception(f"Failed to create memo {response.json().get('error').get('status')}, Message: {response.json().get('error').get('message')}")
                 
                 return { "txHash": response.json().get("txHash", response.json().get("id", "")), "memoId": response.json().get("memoId", "")}
             except Exception as error:
-                print(f"Error creating memo: {error}")
+                print(f"{error}")
                 retries -= 1
                 time.sleep(2 * (3 - retries))
                 
-        raise Exception("Failed to create memo")
+        raise Exception(f"{error}")
 
     def _sign_transaction(self, method_name: str, args: list, contract_address: Optional[str] = None) -> Tuple[dict, str]:
         if contract_address:
@@ -239,17 +240,17 @@ class AcpToken:
                 api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
                 response = requests.post(api_url, json=payload)
                 
-                if (response.status_code != 200):
-                    raise Exception("Failed to sign memo")
+                if (response.json().get("error")):
+                    raise Exception(f"Failed to sign memo {response.json().get('error').get('status')}, Message: {response.json().get('error').get('message')}")
                 
                 return response.json()
                 
             except Exception as error:
-                print(f"Error signing memo: {error}")
+                print(f"{error}")
                 retries -= 1
                 time.sleep(2 * (3 - retries))
                 
-        raise Exception("Failed to sign memo")
+        raise Exception(f"Failed to sign memo {error}")
 
     def set_budget(self, job_id: int, budget: int) -> str:
         try:
@@ -267,13 +268,12 @@ class AcpToken:
             api_url = f"{self.acp_base_url}/acp-agent-wallets/transactions"
             response = requests.post(api_url, json=payload)
             
-            if (response.status_code != 200):
-                raise Exception("Failed to set budget")
+            if (response.json().get("error")):
+                raise Exception(f"Failed to set budget {response.json().get('error').get('status')}, Message: {response.json().get('error').get('message')}")
             
             return response.json()
         except Exception as error:
-            print(f"Error setting budget: {error}")
-            raise Exception("Failed to set budget")
+            raise Exception(f"{error}")
 
     def get_job(self, job_id: int) -> Optional[IJob]:
         try:
@@ -294,8 +294,7 @@ class AcpToken:
                 'evaluatorCount': int(job_data[8])
             }
         except Exception as error:
-            print(f"Error getting job: {error}")
-            raise Exception("Failed to get job")
+            raise Exception(f"{error}")
 
     def get_memo_by_job(
         self,
@@ -311,8 +310,7 @@ class AcpToken:
             else:
                 return memos[-1] if memos else None
         except Exception as error:
-            print(f"Error getting memo: {error}")
-            raise Exception("Failed to get memo")
+            raise Exception(f"Failed to get memo by job {error}")
 
     def get_memos_for_phase(
         self,
@@ -326,5 +324,4 @@ class AcpToken:
             target_memos = [m for m in memos if m['nextPhase'] == target_phase]
             return target_memos[-1] if target_memos else None
         except Exception as error:
-            print(f"Error getting memos: {error}")
-            raise Exception("Failed to get memos")
+            raise Exception(f"Failed to get memos for phase {error}")
